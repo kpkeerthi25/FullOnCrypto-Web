@@ -5,6 +5,14 @@ export interface User {
   createdAt: Date;
 }
 
+export interface UserWithPassword {
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+}
+
 export interface PaymentRequest {
   id: string;
   upiId: string;
