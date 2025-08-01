@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/AuthContext';
+import MetaMaskConnect from './MetaMaskConnect';
 
 const Navigation: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -30,7 +31,9 @@ const Navigation: React.FC = () => {
         )}
       </div>
       
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {isAuthenticated && <MetaMaskConnect />}
+        
         {isAuthenticated ? (
           <>
             <span style={{ marginRight: '1rem' }}>Welcome, {user?.username}!</span>

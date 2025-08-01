@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
 import { useAuth } from '../hooks/AuthContext';
+import MetaMaskLogin from '../components/MetaMaskLogin';
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -51,59 +52,87 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '2rem' }}>
-      <h1>Login to FullOnCrypto</h1>
+    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '2rem' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Login to FullOnCrypto</h1>
       
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-            required
-          />
-        </div>
+      {/* MetaMask Login Section */}
+      <div style={{
+        backgroundColor: '#f8f9fa',
+        padding: '2rem',
+        borderRadius: '12px',
+        marginBottom: '2rem',
+        border: '2px solid #e9ecef'
+      }}>
+        <MetaMaskLogin />
+      </div>
 
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-            required
-          />
-        </div>
+      {/* Divider */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        margin: '2rem 0',
+        color: '#666'
+      }}>
+        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
+        <span style={{ padding: '0 1rem', fontSize: '0.9rem' }}>or continue with</span>
+        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
+      </div>
 
-        {error && (
-          <div style={{ color: 'red', fontSize: '0.9rem' }}>
-            {error}
+      {/* Traditional Login Form */}
+      <div>
+        <h3 style={{ marginBottom: '1rem', color: '#495057' }}>Username & Password</h3>
+        
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <label htmlFor="username">Username:</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+              required
+            />
           </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '0.75rem',
-            backgroundColor: loading ? '#ccc' : '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+          <div>
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+              required
+            />
+          </div>
 
-      <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+          {error && (
+            <div style={{ color: 'red', fontSize: '0.9rem' }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: '0.75rem',
+              backgroundColor: loading ? '#ccc' : '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {loading ? 'Logging in...' : 'Login with Password'}
+          </button>
+        </form>
+      </div>
+
+      <p style={{ textAlign: 'center', marginTop: '2rem' }}>
         Don't have an account?{' '}
         <span
           onClick={() => navigate('/signup')}
