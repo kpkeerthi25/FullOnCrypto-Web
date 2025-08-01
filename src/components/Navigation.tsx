@@ -24,6 +24,7 @@ const Navigation: React.FC = () => {
         {isAuthenticated && (
           <>
             <Link to="/scanner" style={{ marginRight: '1rem' }}>Scanner</Link>
+            <Link to="/open-payments" style={{ marginRight: '1rem' }}>Open Payments</Link>
             <Link to="/profile" style={{ marginRight: '1rem' }}>Profile</Link>
           </>
         )}

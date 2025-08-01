@@ -14,7 +14,7 @@ const Home: React.FC = () => {
           <h2>Welcome back, {user?.username}! 👋</h2>
           <p>Ready to scan QR codes and make crypto payments?</p>
           
-          <div style={{ marginTop: '2rem' }}>
+          <div style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
             <Link 
               to="/scanner" 
               style={{
@@ -25,14 +25,15 @@ const Home: React.FC = () => {
                 textDecoration: 'none',
                 borderRadius: '8px',
                 fontSize: '1.1rem',
-                marginRight: '1rem'
+                textAlign: 'center',
+                minWidth: '160px'
               }}
             >
-              🔍 Start Scanning
+              🔍 Scan QR Code
             </Link>
             
             <Link 
-              to="/profile" 
+              to="/open-payments" 
               style={{
                 display: 'inline-block',
                 padding: '1rem 2rem',
@@ -40,10 +41,29 @@ const Home: React.FC = () => {
                 color: 'white',
                 textDecoration: 'none',
                 borderRadius: '8px',
-                fontSize: '1.1rem'
+                fontSize: '1.1rem',
+                textAlign: 'center',
+                minWidth: '160px'
               }}
             >
-              👤 View Profile
+              💸 Open Payments
+            </Link>
+            
+            <Link 
+              to="/profile" 
+              style={{
+                display: 'inline-block',
+                padding: '1rem 2rem',
+                backgroundColor: '#6c757d',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                fontSize: '1.1rem',
+                textAlign: 'center',
+                minWidth: '160px'
+              }}
+            >
+              👤 Profile
             </Link>
           </div>
         </div>
