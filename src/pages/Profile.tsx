@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/AuthContext';
 import MetaMaskConnect from '../components/MetaMaskConnect';
+import CryptoBalances from '../components/CryptoBalances';
 
 const Profile: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -34,6 +35,9 @@ const Profile: React.FC = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem' }}>
       <h1>👤 Profile</h1>
+      
+      {/* Crypto Balances */}
+      <CryptoBalances walletAddress={user.ethAddress || null} />
       
       {/* User Information */}
       <div style={{
