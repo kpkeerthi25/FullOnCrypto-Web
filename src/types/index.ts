@@ -1,16 +1,5 @@
 export interface User {
-  id: string;
-  username: string;
-  email: string;
-  ethAddress?: string;
-  createdAt: Date;
-}
-
-export interface UserWithPassword {
-  id: string;
-  username: string;
-  email: string;
-  password: string;
+  ethAddress: string;
   createdAt: Date;
 }
 

@@ -11,7 +11,10 @@ const Home: React.FC = () => {
       
       {isAuthenticated ? (
         <div>
-          <h2>Welcome back, {user?.username}! 👋</h2>
+          <h2>Welcome back! 👋</h2>
+          <p style={{ fontSize: '1rem', color: '#666', margin: '0.5rem 0' }}>
+            Connected wallet: {user?.ethAddress ? `${user.ethAddress.slice(0, 6)}...${user.ethAddress.slice(-4)}` : 'Not connected'}
+          </p>
           <p>Ready to scan QR codes and make crypto payments?</p>
           
           <div style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>

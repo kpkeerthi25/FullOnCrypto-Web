@@ -1,43 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useMetaMask } from '../hooks/useMetaMask';
-import { userService } from '../services/userService';
 import { useAuth } from '../hooks/AuthContext';
 
 const MetaMaskConnect: React.FC = () => {
   const { account, isConnected, isConnecting, error, connect, disconnect, isMetaMaskInstalled } = useMetaMask();
-  const { user, login } = useAuth();
-  const [connecting, setConnecting] = useState(false);
-  const [walletError, setWalletError] = useState('');
-
-  const handleConnect = async () => {
-    if (!user) return;
-
-    setConnecting(true);
-    setWalletError('');
-
-    try {
-      const connectedAccount = await connect();
-      if (connectedAccount) {
-        // Check if user already has a wallet address
-        if (user.ethAddress && user.ethAddress !== connectedAccount) {
-          setWalletError(`You can only connect to your registered wallet: ${formatAddress(user.ethAddress)}`);
-          disconnect();
-          return;
-        }
-
-        // Update user's ETH address in the database
-        console.log('Updating wallet for user:', user.username, 'with address:', connectedAccount);
-        const updatedUser = await userService.updateUserWallet(connectedAccount, user.username);
-        login(updatedUser); // Update the user context with new wallet info
-        console.log('Wallet address saved to database');
-      }
-    } catch (error: any) {
-      setWalletError(error.message || 'Failed to connect wallet');
-      console.error('Failed to connect wallet:', error);
-    } finally {
-      setConnecting(false);
-    }
-  };
+  const { user } = useAuth();
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -49,45 +16,51 @@ const MetaMaskConnect: React.FC = () => {
         display: 'flex', 
         alignItems: 'center', 
         gap: '0.5rem',
-        padding: '0.5rem 1rem',
-        backgroundColor: '#fff3cd',
-        color: '#856404',
-        borderRadius: '4px',
-        fontSize: '0.9rem'
+        padding: '0.75rem 1rem',
+        backgroundColor: 'rgba(255, 243, 205, 0.1)',
+        color: '#ffa726',
+        borderRadius: '12px',
+        fontSize: '0.9rem',
+        border: '1px solid rgba(255, 167, 38, 0.2)'
       }}>
-        ⚠️ Please install MetaMask
+        🦊 Please install MetaMask
       </div>
     );
   }
 
-  // Show connected wallet if it matches user's registered wallet
-  if (isConnected && account && user?.ethAddress === account) {
+  // Show connected wallet status
+  if (isConnected && account) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          padding: '0.5rem 1rem',
-          backgroundColor: '#d4edda',
-          color: '#155724',
-          borderRadius: '4px',
-          fontSize: '0.9rem'
+          padding: '0.75rem 1rem',
+          backgroundColor: 'rgba(0, 212, 255, 0.1)',
+          color: '#00d4ff',
+          borderRadius: '12px',
+          fontSize: '0.9rem',
+          border: '1px solid rgba(0, 212, 255, 0.2)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)'
         }}>
-          <span style={{ fontSize: '1rem' }}>🦊</span>
-          <span>{formatAddress(account)}</span>
-          <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>✓ Verified</span>
+          <span style={{ fontSize: '1.1rem' }}>🦊</span>
+          <span style={{ fontWeight: '600' }}>{formatAddress(account)}</span>
+          <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>✓</span>
         </div>
         <button
           onClick={disconnect}
           style={{
-            padding: '0.5rem 0.75rem',
-            backgroundColor: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
+            padding: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            color: '#e2e8f0',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
             cursor: 'pointer',
-            fontSize: '0.8rem'
+            fontSize: '0.8rem',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)'
           }}
         >
           Disconnect
@@ -96,98 +69,46 @@ const MetaMaskConnect: React.FC = () => {
     );
   }
 
-  // Show registered wallet address if user has one but not connected
-  if (user?.ethAddress && !isConnected) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.5rem 1rem',
-          backgroundColor: '#fff3cd',
-          color: '#856404',
-          borderRadius: '4px',
-          fontSize: '0.9rem'
-        }}>
-          <span style={{ fontSize: '1rem' }}>🦊</span>
-          <span>Registered: {formatAddress(user.ethAddress)}</span>
-        </div>
-        
-        <button
-          onClick={handleConnect}
-          disabled={connecting}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1rem',
-            backgroundColor: connecting ? '#ccc' : '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: connecting ? 'not-allowed' : 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: 'bold'
-          }}
-        >
-          <span style={{ fontSize: '1rem' }}>🦊</span>
-          {connecting ? 'Connecting...' : 'Connect Registered Wallet'}
-        </button>
-      </div>
-    );
-  }
-
-  // Show connect button for users without a registered wallet
+  // Show connect button
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      {(error || walletError) && (
+      {error && (
         <div style={{
-          padding: '0.5rem',
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          borderRadius: '4px',
+          padding: '0.75rem',
+          backgroundColor: 'rgba(255, 59, 48, 0.1)',
+          color: '#ff6b6b',
+          borderRadius: '12px',
           fontSize: '0.8rem',
-          maxWidth: '250px'
+          border: '1px solid rgba(255, 59, 48, 0.2)'
         }}>
-          {walletError || error}
+          {error}
         </div>
       )}
       
       <button
-        onClick={handleConnect}
-        disabled={connecting || isConnecting}
+        onClick={connect}
+        disabled={isConnecting}
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '0.5rem',
-          padding: '0.5rem 1rem',
-          backgroundColor: (connecting || isConnecting) ? '#ccc' : '#ff6f00',
+          padding: '0.75rem 1rem',
+          background: isConnecting ? 'rgba(255, 255, 255, 0.1)' : 'linear-gradient(135deg, #ff6f00, #ff8f00)',
           color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: (connecting || isConnecting) ? 'not-allowed' : 'pointer',
+          border: '1px solid rgba(255, 111, 0, 0.3)',
+          borderRadius: '12px',
+          cursor: isConnecting ? 'not-allowed' : 'pointer',
           fontSize: '0.9rem',
-          fontWeight: 'bold'
+          fontWeight: '600',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          boxShadow: isConnecting ? 'none' : '0 4px 15px rgba(255, 111, 0, 0.3)'
         }}
       >
-        <span style={{ fontSize: '1rem' }}>🦊</span>
-        {connecting || isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        <span style={{ fontSize: '1.1rem' }}>🦊</span>
+        {isConnecting ? 'Connecting...' : 'Connect Wallet'}
       </button>
-      
-      {!user?.ethAddress && (
-        <p style={{ 
-          fontSize: '0.7rem', 
-          color: '#666', 
-          margin: '0',
-          textAlign: 'center',
-          lineHeight: 1.3
-        }}>
-          First-time connection will bind this wallet to your account
-        </p>
-      )}
     </div>
   );
 };

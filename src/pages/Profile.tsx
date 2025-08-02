@@ -51,18 +51,23 @@ const Profile: React.FC = () => {
         
         <div style={{ display: 'grid', gap: '1rem' }}>
           <div>
-            <strong>Username:</strong> {user.username}
+            <strong>Wallet Address:</strong> 
+            <div style={{ 
+              fontFamily: 'monospace', 
+              fontSize: '0.9rem',
+              backgroundColor: '#fff',
+              padding: '0.5rem',
+              borderRadius: '4px',
+              marginTop: '0.25rem',
+              border: '1px solid #ddd'
+            }}>
+              {user.ethAddress || 'Not connected'}
+            </div>
           </div>
           
           <div>
             <strong>Account Created:</strong> {formatDate(user.createdAt)}
           </div>
-          
-          {user.email && (
-            <div>
-              <strong>Email:</strong> {user.email}
-            </div>
-          )}
         </div>
       </div>
 

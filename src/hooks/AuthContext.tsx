@@ -3,7 +3,7 @@ import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  login: (userData: User) => void;
+  loginWithWallet: (ethAddress: string) => void;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
@@ -29,7 +29,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(false);
   }, []);
 
-  const login = (userData: User) => {
+  const loginWithWallet = (ethAddress: string) => {
+    const userData: User = {
+      ethAddress,
+      createdAt: new Date()
+    };
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
@@ -41,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const value = {
     user,
-    login,
+    loginWithWallet,
     logout,
     loading,
     isAuthenticated: !!user

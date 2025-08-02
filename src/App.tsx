@@ -4,7 +4,6 @@ import { AuthProvider } from './hooks/AuthContext';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import SignUp from './pages/SignUp';
 import Scanner from './pages/Scanner';
 import Profile from './pages/Profile';
 import OpenPayments from './pages/OpenPayments';
@@ -21,7 +20,6 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/open-payments" element={<OpenPayments />} />

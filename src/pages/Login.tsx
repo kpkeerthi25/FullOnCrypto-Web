@@ -1,146 +1,71 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { userService } from '../services/userService';
-import { useAuth } from '../hooks/AuthContext';
+import React from 'react';
 import MetaMaskLogin from '../components/MetaMaskLogin';
 
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    // Validation
-    if (!formData.username || !formData.password) {
-      setError('Username and password are required');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const user = await userService.loginUser({
-        username: formData.username,
-        password: formData.password
-      });
-      
-      // Use auth hook to manage user state
-      login(user);
-      
-      // Redirect to home page on success
-      navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during login');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Login to FullOnCrypto</h1>
+    <div style={{ 
+      maxWidth: '500px', 
+      margin: '0 auto', 
+      padding: '2rem',
+      minHeight: '80vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h1 style={{ 
+          fontSize: '2.5rem',
+          background: 'linear-gradient(45deg, #00d4ff, #5a67d8, #667eea)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          marginBottom: '1rem',
+          fontWeight: '700'
+        }}>
+          💎 FullOnCrypto
+        </h1>
+        <p style={{ 
+          fontSize: '1.2rem', 
+          color: '#666', 
+          margin: '0',
+          fontWeight: '500'
+        }}>
+          Connect your wallet to get started
+        </p>
+      </div>
       
-      {/* MetaMask Login Section */}
+      {/* Wallet Login Section */}
       <div style={{
-        backgroundColor: '#f8f9fa',
-        padding: '2rem',
-        borderRadius: '12px',
-        marginBottom: '2rem',
-        border: '2px solid #e9ecef'
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+        padding: '3rem',
+        borderRadius: '20px',
+        border: '1px solid rgba(0, 212, 255, 0.2)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(15px)',
+        WebkitBackdropFilter: 'blur(15px)'
       }}>
         <MetaMaskLogin />
       </div>
 
-      {/* Divider */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        margin: '2rem 0',
-        color: '#666'
+      <div style={{ 
+        textAlign: 'center',
+        marginTop: '2rem',
+        padding: '1.5rem',
+        backgroundColor: 'rgba(0, 212, 255, 0.05)',
+        borderRadius: '12px',
+        border: '1px solid rgba(0, 212, 255, 0.1)'
       }}>
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
-        <span style={{ padding: '0 1rem', fontSize: '0.9rem' }}>or continue with</span>
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
+        <p style={{ 
+          fontSize: '0.9rem', 
+          color: '#666', 
+          margin: '0',
+          lineHeight: 1.6
+        }}>
+          🔒 <strong>Secure & Decentralized</strong><br/>
+          No passwords, no emails - just your wallet address.<br/>
+          Your identity is secured by blockchain cryptography.
+        </p>
       </div>
-
-      {/* Traditional Login Form */}
-      <div>
-        <h3 style={{ marginBottom: '1rem', color: '#495057' }}>Username & Password</h3>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div>
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-              required
-            />
-          </div>
-
-          {error && (
-            <div style={{ color: 'red', fontSize: '0.9rem' }}>
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: '0.75rem',
-              backgroundColor: loading ? '#ccc' : '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {loading ? 'Logging in...' : 'Login with Password'}
-          </button>
-        </form>
-      </div>
-
-      <p style={{ textAlign: 'center', marginTop: '2rem' }}>
-        Don't have an account?{' '}
-        <span
-          onClick={() => navigate('/signup')}
-          style={{ color: '#007bff', cursor: 'pointer', textDecoration: 'underline' }}
-        >
-          Sign up here
-        </span>
-      </p>
     </div>
   );
 };
