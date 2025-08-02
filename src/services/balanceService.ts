@@ -1,3 +1,6 @@
+import { NetworkService } from './networkConfig';
+import { priceService } from './priceService';
+
 export interface TokenBalance {
   symbol: string;
   name: string;
@@ -16,14 +19,21 @@ export interface BalanceResponse {
 
 export class BalanceService {
   private readonly baseURL = 'https://1inch-vercel-proxy-pink.vercel.app';
-  private readonly BASE_CHAIN_ID = 8453;
 
   async getTokenBalances(walletAddress: string): Promise<TokenBalance[]> {
     try {
-      console.log(`Fetching balances for wallet: ${walletAddress} on Base L2`);
+      const networkConfig = NetworkService.getCurrentNetwork();
+      const chainId = networkConfig.oneInchChainId || networkConfig.chainId;
+      
+      console.log(`Fetching balances for wallet: ${walletAddress} on ${networkConfig.name} (using 1inch chain ${chainId})`);
+      
+      // For local networks, return mock data since 1inch doesn't support them
+      if (!networkConfig.oneInchChainId) {
+        return this.getMockBalances(walletAddress, networkConfig);
+      }
       
       // Fetch balances using direct API call
-      const balanceResponse = await fetch(`${this.baseURL}/balance/v1.2/${this.BASE_CHAIN_ID}/balances/${walletAddress}`);
+      const balanceResponse = await fetch(`${this.baseURL}/balance/v1.2/${chainId}/balances/${walletAddress}`);
       
       if (!balanceResponse.ok) {
         throw new Error(`Failed to fetch balances: ${balanceResponse.status} ${balanceResponse.statusText}`);
@@ -55,14 +65,11 @@ export class BalanceService {
         })
         .filter(token => parseFloat(token.balanceFormatted) > 0); // Filter out zero balances first
 
-      // Fetch all token prices in INR
+      // Fetch all token prices in INR using the shared price service
       let tokenPrices: any = {};
       try {
-        const priceResponse = await fetch(`${this.baseURL}/price/v1.1/${this.BASE_CHAIN_ID}?currency=INR`);
-        if (priceResponse.ok) {
-          tokenPrices = await priceResponse.json();
-          console.log('1inch token prices (INR) fetched for all tokens:', Object.keys(tokenPrices).length);
-        }
+        tokenPrices = await priceService.getTokenPrices(chainId);
+        console.log('Token prices fetched for all tokens:', Object.keys(tokenPrices).length);
       } catch (error) {
         console.warn('Failed to fetch token prices in INR:', error);
       }
@@ -134,6 +141,32 @@ export class BalanceService {
       console.error('Error fetching ETH balance:', error);
       return null;
     }
+  }
+
+  private async getMockBalances(_walletAddress: string, networkConfig: any): Promise<TokenBalance[]> {
+    // Mock balances for local development
+    return [
+      {
+        symbol: 'ETH',
+        name: 'Ethereum',
+        decimals: 18,
+        balance: '10000000000000000000', // 10 ETH
+        balanceFormatted: '10.0000',
+        tokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        price: 200000, // Mock INR price
+        valueINR: 2000000, // 10 ETH * 200,000 INR
+      },
+      {
+        symbol: 'DAI',
+        name: 'Mock DAI',
+        decimals: 18,
+        balance: '1000000000000000000000', // 1000 DAI
+        balanceFormatted: '1000.0000',
+        tokenAddress: networkConfig.contracts.daiToken,
+        price: 83, // Mock INR price (~1 USD)
+        valueINR: 83000, // 1000 DAI * 83 INR
+      }
+    ];
   }
 }
 

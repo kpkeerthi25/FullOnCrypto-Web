@@ -8,6 +8,7 @@ import SignUp from './pages/SignUp';
 import Scanner from './pages/Scanner';
 import Profile from './pages/Profile';
 import OpenPayments from './pages/OpenPayments';
+import PendingPayments from './pages/PendingPayments';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/open-payments" element={<OpenPayments />} />
+              <Route path="/pending-payments" element={<PendingPayments />} />
             </Routes>
           </main>
         </div>

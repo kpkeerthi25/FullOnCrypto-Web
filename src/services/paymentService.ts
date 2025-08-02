@@ -3,6 +3,10 @@ export interface CreatePaymentRequestData {
   amount: number;
   payeeName?: string;
   note?: string;
+  contractRequestId?: string; // Link to smart contract request
+  walletAddress?: string;
+  daiAmount?: number;
+  ethFee?: number;
 }
 
 export interface PaymentRequest {
