@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/AuthContext';
 import Navigation from './components/Navigation';
+import ApiStatusNotification from './components/ApiStatusNotification';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Scanner from './pages/Scanner';
@@ -16,6 +17,7 @@ function App() {
       <Router>
         <div className="App">
           <Navigation />
+          <ApiStatusNotification />
           <main style={{ padding: '2rem' }}>
             <Routes>
               <Route path="/" element={<Home />} />

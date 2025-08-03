@@ -4,6 +4,7 @@ import { contractService, FormattedPaymentRequest } from '../services/contractSe
 import { useAuth } from '../hooks/AuthContext';
 import { generateUPIQRCode } from '../utils/qrGenerator';
 import { priceService } from '../services/priceService';
+import { PLATFORM_CONFIG } from '../config/platform';
 
 const OpenPayments: React.FC = () => {
   const [paymentRequests, setPaymentRequests] = useState<FormattedPaymentRequest[]>([]);
@@ -105,7 +106,8 @@ const OpenPayments: React.FC = () => {
         upiId: payment.upiId,
         payeeName: payment.payeeName,
         amount: payment.amount,
-        note: payment.note
+        note: payment.note,
+        merchantCode: PLATFORM_CONFIG.MERCHANT_CODE
       });
       
       setSelectedPayment(payment);

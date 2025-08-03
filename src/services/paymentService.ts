@@ -67,6 +67,33 @@ export class PaymentService {
       throw error;
     }
   }
+
+  async getPaymentRequestByContractId(contractRequestId: string): Promise<PaymentRequest | null> {
+    try {
+      const response = await fetch(`${this.baseURL}/payment-request/contract/${contractRequestId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 404) {
+        // Payment request not found in MongoDB
+        return null;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch payment request');
+      }
+
+      return data.paymentRequest;
+    } catch (error) {
+      console.error('Error fetching payment request by contract ID:', error);
+      return null; // Return null instead of throwing to allow fallback
+    }
+  }
 }
 
 export const paymentService = new PaymentService();

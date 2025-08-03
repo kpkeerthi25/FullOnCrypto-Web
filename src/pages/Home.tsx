@@ -74,11 +74,11 @@ const Home: React.FC = () => {
         <div>
           <h2>Welcome to FullOnCrypto! 🚀</h2>
           <p>Scan QR codes to make crypto payments in rupees.</p>
-          <p>Get started by creating an account or logging in.</p>
+          <p>Connect your wallet to get started with crypto payments.</p>
           
           <div style={{ marginTop: '2rem' }}>
             <Link 
-              to="/signup" 
+              to="/login" 
               style={{
                 display: 'inline-block',
                 padding: '1rem 2rem',
@@ -86,26 +86,10 @@ const Home: React.FC = () => {
                 color: 'white',
                 textDecoration: 'none',
                 borderRadius: '8px',
-                fontSize: '1.1rem',
-                marginRight: '1rem'
-              }}
-            >
-              📝 Sign Up
-            </Link>
-            
-            <Link 
-              to="/login" 
-              style={{
-                display: 'inline-block',
-                padding: '1rem 2rem',
-                backgroundColor: '#28a745',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '8px',
                 fontSize: '1.1rem'
               }}
             >
-              🔐 Login
+              🔗 Connect Wallet
             </Link>
           </div>
         </div>

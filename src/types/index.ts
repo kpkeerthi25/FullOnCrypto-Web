@@ -1,5 +1,6 @@
 export interface User {
   ethAddress: string;
+  upiId?: string; // Optional UPI ID from MongoDB
   createdAt: Date;
 }
 
