@@ -117,6 +117,31 @@ class PriceService {
     console.log('Price cache cleared');
   }
 
+  async getTokenInfo(tokenAddress: string, chainId?: number): Promise<{ logoURI?: string; symbol?: string; name?: string } | null> {
+    const targetChainId = chainId || 8453; // Default to Base mainnet
+    
+    try {
+      console.log(`Fetching token info for ${tokenAddress} on chain ${targetChainId}`);
+      const response = await fetch(`${this.baseURL}/token/v1.2/${targetChainId}/custom/${tokenAddress}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch token info: ${response.status} ${response.statusText}`);
+      }
+
+      const tokenData = await response.json();
+      console.log(`Token info for ${tokenAddress}:`, tokenData);
+      
+      return {
+        logoURI: tokenData.logoURI,
+        symbol: tokenData.symbol,
+        name: tokenData.name
+      };
+    } catch (error) {
+      console.error(`Error fetching token info for ${tokenAddress}:`, error);
+      return null;
+    }
+  }
+
   async getGasPrice(chainId?: number): Promise<{ standard: number; fast: number; instant: number } | null> {
     const targetChainId = chainId || 8453; // Default to Base mainnet
     

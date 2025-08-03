@@ -74,18 +74,46 @@ export class BalanceService {
         console.warn('Failed to fetch token prices in INR:', error);
       }
 
-      // Add INR values to the filtered balances
-      const filteredBalances = balances.map(token => {
-        const price = tokenPrices[token.tokenAddress];
-        const balanceNum = parseFloat(token.balanceFormatted);
-        const valueINR = price && balanceNum > 0 ? balanceNum * price : undefined;
-        
-        return {
-          ...token,
-          price,
-          valueINR,
-        };
-      });
+      // Add INR values and logos to the filtered balances
+      const enrichedBalances = await Promise.all(
+        balances.map(async (token) => {
+          const price = tokenPrices[token.tokenAddress];
+          const balanceNum = parseFloat(token.balanceFormatted);
+          const valueINR = price && balanceNum > 0 ? balanceNum * price : undefined;
+          
+          // Fetch token info (including logo) for ETH and DAI only
+          let logoURI = token.logoURI;
+          let updatedSymbol = token.symbol;
+          let updatedName = token.name;
+          
+          const isETH = token.tokenAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+          const isDAI = token.tokenAddress.toLowerCase() === '0x50c5725949a6f0c72e6c4a641f24049a917db0cb';
+          
+          if (isETH || isDAI) {
+            try {
+              const tokenInfo = await priceService.getTokenInfo(token.tokenAddress, chainId);
+              if (tokenInfo) {
+                logoURI = tokenInfo.logoURI || logoURI;
+                updatedSymbol = tokenInfo.symbol || updatedSymbol;
+                updatedName = tokenInfo.name || updatedName;
+              }
+            } catch (error) {
+              console.warn(`Failed to fetch token info for ${token.symbol}:`, error);
+            }
+          }
+          
+          return {
+            ...token,
+            symbol: updatedSymbol,
+            name: updatedName,
+            logoURI,
+            price,
+            valueINR,
+          };
+        })
+      );
+
+      const filteredBalances = enrichedBalances;
 
       return filteredBalances.sort((a, b) => {
         // Sort by INR value if both have it, otherwise by token amount

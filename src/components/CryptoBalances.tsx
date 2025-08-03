@@ -92,23 +92,71 @@ const CryptoBalances: React.FC<CryptoBalancesProps> = ({ walletAddress }) => {
               <div key={token.tokenAddress} style={{
                 padding: '1rem',
                 backgroundColor: '#f8f9fa',
-                borderRadius: '4px',
-                border: '1px solid #dee2e6'
+                borderRadius: '8px',
+                border: '1px solid #dee2e6',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
               }}>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>{token.symbol}</strong> - {token.name}
-                </div>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  Balance: {token.balanceFormatted}
-                </div>
-                <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                  Address: {token.tokenAddress}
-                </div>
-                {token.valueINR && (
-                  <div style={{ fontSize: '0.8rem', color: '#28a745', marginTop: '0.5rem' }}>
-                    INR Value: ₹{token.valueINR.toFixed(2)}
+                {/* Token Logo */}
+                <div style={{ flexShrink: 0 }}>
+                  {token.logoURI ? (
+                    <img 
+                      src={token.logoURI} 
+                      alt={`${token.symbol} logo`}
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: '#fff',
+                        border: '1px solid #e9ecef'
+                      }}
+                      onError={(e) => {
+                        // Fallback to default icon if image fails to load
+                        e.currentTarget.style.display = 'none';
+                        const fallbackElement = e.currentTarget.nextElementSibling as HTMLDivElement;
+                        if (fallbackElement) {
+                          fallbackElement.style.display = 'flex';
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#e9ecef',
+                    display: token.logoURI ? 'none' : 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.2rem',
+                    fontWeight: 'bold',
+                    color: '#666'
+                  }}>
+                    {token.symbol.charAt(0)}
                   </div>
-                )}
+                </div>
+                
+                {/* Token Details */}
+                <div style={{ flex: 1 }}>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ fontSize: '1.1rem', color: '#333' }}>{token.symbol}</strong>
+                    <span style={{ marginLeft: '0.5rem', color: '#666', fontSize: '0.9rem' }}>
+                      {token.name}
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem', fontSize: '1rem', fontWeight: '600' }}>
+                    {token.balanceFormatted} {token.symbol}
+                  </div>
+                  {token.valueINR && (
+                    <div style={{ fontSize: '0.9rem', color: '#28a745', fontWeight: '500' }}>
+                      ₹{token.valueINR.toFixed(2)}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.25rem' }}>
+                    {token.tokenAddress.slice(0, 8)}...{token.tokenAddress.slice(-6)}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
