@@ -20,6 +20,7 @@ const OpenPayments: React.FC = () => {
   const [daiPrice, setDaiPrice] = useState<number>(83); // Default fallback (~1 USD)
   const [transactionNumber, setTransactionNumber] = useState('');
   const [userCommittedRequests, setUserCommittedRequests] = useState<string[]>([]); // Track requests user has committed to
+  const [gasPrice, setGasPrice] = useState<{ standard: number; fast: number; instant: number } | null>(null);
   
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -81,6 +82,7 @@ const OpenPayments: React.FC = () => {
       fetchPaymentRequests();
       fetchETHPrice();
       fetchDAIPrice();
+      fetchGasPrice();
     }
   }, [walletConnected, currentUserAddress]);
 
@@ -104,12 +106,23 @@ const OpenPayments: React.FC = () => {
     }
   };
 
+  const fetchGasPrice = async () => {
+    try {
+      const gas = await priceService.getGasPrice();
+      setGasPrice(gas);
+    } catch (error) {
+      console.error('Failed to fetch gas price:', error);
+      // gasPrice will remain null
+    }
+  };
+
   const handleRefresh = () => {
     setRefreshing(true);
     fetchUserCommittedRequests(); // Refresh user's committed requests
     fetchPaymentRequests();
     fetchETHPrice(); // Also refresh ETH price
     fetchDAIPrice(); // Also refresh DAI price
+    fetchGasPrice(); // Also refresh gas price
   };
 
   const handleAcknowledge = async (payment: FormattedPaymentRequest) => {
@@ -611,6 +624,34 @@ const OpenPayments: React.FC = () => {
           <p style={{ margin: '0', fontSize: '0.8rem', color: '#0066cc', fontStyle: 'italic' }}>
             ⚠️ <strong>Note:</strong> "COMMITMENT EXPIRED" requests were previously committed by someone else but they didn't complete the payment within 5 minutes - now available for you!
           </p>
+        </div>
+      )}
+
+      {/* Gas Price Display */}
+      {gasPrice && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          border: '1px solid #e9ecef',
+          borderRadius: '12px',
+          padding: '0.75rem 1rem',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          fontSize: '0.8rem',
+          color: '#666',
+          backdropFilter: 'blur(10px)',
+          zIndex: 100
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontWeight: 'bold', color: '#333' }}>⛽ Gas (Base):</span>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <span style={{ color: '#28a745' }}>🐌 {gasPrice.standard.toFixed(3)} gwei</span>
+              <span style={{ color: '#ffc107' }}>🚀 {gasPrice.fast.toFixed(3)} gwei</span>
+              <span style={{ color: '#dc3545' }}>⚡ {gasPrice.instant.toFixed(3)} gwei</span>
+            </div>
+          </div>
         </div>
       )}
 

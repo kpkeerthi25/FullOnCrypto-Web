@@ -117,6 +117,34 @@ class PriceService {
     console.log('Price cache cleared');
   }
 
+  async getGasPrice(chainId?: number): Promise<{ standard: number; fast: number; instant: number } | null> {
+    const targetChainId = chainId || 8453; // Default to Base mainnet
+    
+    try {
+      console.log(`Fetching gas price for chain ${targetChainId}`);
+      const response = await fetch(`${this.baseURL}/gas-price/v1.6/${targetChainId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch gas price: ${response.status} ${response.statusText}`);
+      }
+
+      const gasData = await response.json();
+      console.log('Raw gas data:', gasData);
+      
+      // Parse the actual response structure
+      // Convert from wei to gwei for display (keep decimals for low gas chains like Base)
+      const standard = parseFloat((parseInt(gasData.low?.maxFeePerGas || '0') / 1e9).toFixed(3));
+      const fast = parseFloat((parseInt(gasData.medium?.maxFeePerGas || '0') / 1e9).toFixed(3));
+      const instant = parseFloat((parseInt(gasData.instant?.maxFeePerGas || '0') / 1e9).toFixed(3));
+      
+      console.log(`Gas prices (gwei): Standard=${standard}, Fast=${fast}, Instant=${instant}`);
+      return { standard, fast, instant };
+    } catch (error) {
+      console.error('Error fetching gas price:', error);
+      return null;
+    }
+  }
+
   // Get cache status for debugging
   getCacheInfo(): { [chainId: number]: { age: number; count: number } } {
     const info: { [chainId: number]: { age: number; count: number } } = {};
