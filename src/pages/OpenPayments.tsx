@@ -19,6 +19,7 @@ const OpenPayments: React.FC = () => {
   const [ethPrice, setEthPrice] = useState<number>(200000); // Default fallback
   const [daiPrice, setDaiPrice] = useState<number>(83); // Default fallback (~1 USD)
   const [transactionNumber, setTransactionNumber] = useState('');
+  const [userCommittedRequests, setUserCommittedRequests] = useState<string[]>([]); // Track requests user has committed to
   
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -44,6 +45,23 @@ const OpenPayments: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
+  const fetchUserCommittedRequests = async () => {
+    try {
+      if (!walletConnected || !currentUserAddress) {
+        return;
+      }
+      
+      // Get all requests that this user has ever committed to
+      const userRequests = await contractService.getPayerCommittedRequests(currentUserAddress);
+      const committedRequestIds = userRequests.map(req => req.id);
+      setUserCommittedRequests(committedRequestIds);
+      console.log('User has previously committed to requests:', committedRequestIds);
+    } catch (err: any) {
+      console.warn('Failed to fetch user committed requests:', err);
+      // Don't set error state for this, just log it
+    }
+  };
+
   const fetchPaymentRequests = async () => {
     try {
       setError('');
@@ -59,6 +77,7 @@ const OpenPayments: React.FC = () => {
 
   useEffect(() => {
     if (walletConnected && currentUserAddress) {
+      fetchUserCommittedRequests(); // Fetch user's previously committed requests first
       fetchPaymentRequests();
       fetchETHPrice();
       fetchDAIPrice();
@@ -87,6 +106,7 @@ const OpenPayments: React.FC = () => {
 
   const handleRefresh = () => {
     setRefreshing(true);
+    fetchUserCommittedRequests(); // Refresh user's committed requests
     fetchPaymentRequests();
     fetchETHPrice(); // Also refresh ETH price
     fetchDAIPrice(); // Also refresh DAI price
@@ -114,6 +134,7 @@ const OpenPayments: React.FC = () => {
       setQrCodeDataURL(qrCode);
       
       // Refresh the payment requests to show updated status
+      fetchUserCommittedRequests(); // Update committed requests list
       fetchPaymentRequests();
     } catch (err: any) {
       setError(err.message || 'Failed to commit to payment');
@@ -153,6 +174,7 @@ const OpenPayments: React.FC = () => {
       handleCloseQR();
       
       // Refresh the payment requests to show updated status
+      fetchUserCommittedRequests(); // Update committed requests list
       fetchPaymentRequests();
       
       alert(`Payment fulfilled successfully! Transaction Number: ${transactionNumber.trim()}\nYou should receive the crypto in your wallet.`);
@@ -509,37 +531,53 @@ const OpenPayments: React.FC = () => {
                   </div>
                 </div>
                 
-                <button
-                  onClick={() => handleAcknowledge(request)}
-                  disabled={generatingQR}
-                  style={{
+{userCommittedRequests.includes(request.id) ? (
+                  <div style={{
                     width: '100%',
                     padding: '0.75rem',
-                    backgroundColor: generatingQR ? '#ccc' : '#28a745',
+                    backgroundColor: '#dc3545',
                     color: 'white',
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: '1rem',
-                    cursor: generatingQR ? 'not-allowed' : 'pointer',
                     fontWeight: 'bold',
-                    boxShadow: generatingQR ? 'none' : '0 2px 4px rgba(40, 167, 69, 0.3)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseOver={(e) => {
-                    if (!generatingQR) {
-                      e.currentTarget.style.backgroundColor = '#218838';
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!generatingQR) {
-                      e.currentTarget.style.backgroundColor = '#28a745';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }
-                  }}
-                >
-                  {generatingQR ? '⏳ Generating QR Code...' : '🚀 Accept & Generate QR'}
-                </button>
+                    textAlign: 'center'
+                  }}>
+                    ❌ Already Committed (Cannot commit again)
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleAcknowledge(request)}
+                    disabled={generatingQR}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      backgroundColor: generatingQR ? '#ccc' : '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '1rem',
+                      cursor: generatingQR ? 'not-allowed' : 'pointer',
+                      fontWeight: 'bold',
+                      boxShadow: generatingQR ? 'none' : '0 2px 4px rgba(40, 167, 69, 0.3)',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseOver={(e) => {
+                      if (!generatingQR) {
+                        e.currentTarget.style.backgroundColor = '#218838';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (!generatingQR) {
+                        e.currentTarget.style.backgroundColor = '#28a745';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }
+                    }}
+                  >
+                    {generatingQR ? '⏳ Generating QR Code...' : '🚀 Accept & Generate QR'}
+                  </button>
+                )}
                 
                 <div style={{ 
                   fontSize: '0.8rem', 
@@ -592,10 +630,12 @@ const OpenPayments: React.FC = () => {
         }}>
           <div style={{
             backgroundColor: 'white',
-            padding: '2rem',
+            padding: '1rem',
             borderRadius: '12px',
-            maxWidth: '500px',
-            width: '90%',
+            maxWidth: '400px',
+            width: '95%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
             textAlign: 'center',
             position: 'relative'
           }}>
@@ -622,10 +662,10 @@ const OpenPayments: React.FC = () => {
             {/* Payment Summary */}
             <div style={{ 
               backgroundColor: '#f8f9fa',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              marginBottom: '1.5rem',
-              border: '2px solid #e9ecef'
+              padding: '1rem',
+              borderRadius: '8px',
+              marginBottom: '1rem',
+              border: '1px solid #e9ecef'
             }}>
               <div style={{ 
                 display: 'grid', 
@@ -712,8 +752,8 @@ const OpenPayments: React.FC = () => {
                 src={qrCodeDataURL} 
                 alt="UPI Payment QR Code"
                 style={{
-                  maxWidth: '300px',
-                  width: '100%',
+                  maxWidth: '250px',
+                  width: '80%',
                   height: 'auto',
                   border: '1px solid #ddd',
                   borderRadius: '8px'
