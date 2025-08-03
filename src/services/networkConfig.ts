@@ -31,7 +31,7 @@ export const NETWORK_CONFIGS: Record<number, NetworkConfig> = {
     rpcUrl: 'https://mainnet.base.org',
     isTestnet: false,
     contracts: {
-      paymentEscrow: 'NOT_DEPLOYED_YET',
+      paymentEscrow: '0x7e7E2bBB58C1F7C710005797C48705747877C647',
       daiToken: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', // Real DAI on Base
     },
     oneInchChainId: 8453,
